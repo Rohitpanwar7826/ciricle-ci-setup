@@ -1,0 +1,58 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/ruby:3.3
+
+    working_directory: ~/circle-ci-setup
+
+    environment:
+      RAILS_ENV: test
+      BUNDLE_PATH: vendor/bundle
+
+    steps:
+      - checkout
+
+      # Install sqlite3 dependency
+      - run:
+          name: Install SQLite
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y sqlite3 libsqlite3-dev
+
+      # Restore bundle cache
+      - restore_cache:
+          keys:
+            - gem-cache-v1-{{ checksum "Gemfile.lock" }}
+            - gem-cache-v1-
+
+      # Install gems
+      - run:
+          name: Bundle Install
+          command: |
+            bundle install --path vendor/bundle
+
+      # Save cache
+      - save_cache:
+          key: gem-cache-v1-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      # Setup database
+      - run:
+          name: Setup Database
+          command: |
+            bundle exec rails db:create db:schema:load --trace
+
+      # Run RSpec
+      - run:
+          name: Run RSpec
+          command: |
+            bundle exec rspec
+
+workflows:
+  version: 2
+  test_workflow:
+    jobs:
+      - test
