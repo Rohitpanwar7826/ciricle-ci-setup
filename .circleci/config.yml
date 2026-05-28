@@ -29,9 +29,12 @@ jobs:
 
       # Install gems
       - run:
+          name: Configure Bundler Path
+          command: bundle config set path 'vendor/bundle'
+
+      - run:
           name: Bundle Install
-          command: |
-            bundle install --path vendor/bundle
+          command: bundle install
 
       # Save cache
       - save_cache:
