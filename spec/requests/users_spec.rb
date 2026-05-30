@@ -32,6 +32,7 @@ RSpec.describe "Users", type: :request do
         user: {name: "Rohit", email: "rohitpawarmit@gmail.com"}
       }
       user = User.find_by_email "rohitpawarmit@gmail.com"
+      raise "User is not present"
       unless user.present?
         raise "User is not present"
       end
