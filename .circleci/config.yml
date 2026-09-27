@@ -6,7 +6,7 @@ jobs:
       - image: cimg/ruby:3.3
 
     working_directory: ~/circle-ci-setup
-
+    parallelism: 5
     environment:
       RAILS_ENV: test
       BUNDLE_PATH: vendor/bundle
@@ -52,7 +52,12 @@ jobs:
       - run:
           name: Run RSpec
           command: |
-            bundle exec rspec
+            TEST_FILES=$(circleci tests glob "spec/**/*_spec.rb" | \
+              circleci tests split --split-by=timings)
+
+            echo "$TEST_FILES"
+
+            bundle exec rspec $TEST_FILES
 
 workflows:
   version: 2
